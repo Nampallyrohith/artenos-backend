@@ -1,27 +1,27 @@
-import express from 'express';
-import cors from 'cors';
-
+import express from "express";
+import cors from "cors";
 
 const app = express();
 app.use(cors());
 
 const key = "246b040633e745d195a125332240606";
 const options = {
-    method: 'GET'
-}
+  method: "GET",
+};
 
 const fetchCall = async (place, days) => {
-    const url = `http://api.weatherapi.com/v1/forecast.json?q=${place}&days=${days}&key=${key}`;
-    const response = await fetch(url, options);
-    const data = await response.json()
-    return data;
-}
+  const url = `http://api.weatherapi.com/v1/forecast.json?q=${place}&days=${days}&key=${key}`;
+  const response = await fetch(url, options);
+  const data = await response.json();
+  return data;
+};
 
-app.get('/:place', async (req, res) => {
-    const { place } = req.params;
+app.get("/:place", async (req, res) => {
+  const { place } = req.params;
+  try {
     const placeData = await fetchCall(place, 2);
-    const condition = placeData.current.condition.text
-    let weatherData = {placeData}
+    const condition = placeData.current.condition.text;
+    let weatherData = { placeData };
     // current/condition.text
     switch (true) {
       case condition.toLowerCase().includes("sunny"):
@@ -36,12 +36,10 @@ app.get('/:place', async (req, res) => {
       case condition.toLowerCase().includes("cloudy"):
         weatherData = { ...placeData, canDo: "Travel your favourite places" };
     }
+    res.status(200).send(weatherData);
+  } catch (e) {
+    res.send(e);
+  }
+});
 
-
-    console.log(weatherData)
-    res.send(weatherData)
-})
-
-app.listen(5000, console.log('Server is started on 5000'))
-
-
+app.listen(5000, console.log("Server is started on 5000"));
